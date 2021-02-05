@@ -3,8 +3,8 @@ package no.fint.consumer.config;
 import no.fint.consumer.utils.RestEndpoints;
 import java.util.Map;
 import com.google.common.collect.ImmutableMap;
-
-import no.fint.model.okonomi.kodeverk.*;
+import no.fint.model.okonomi.kodeverk.Merverdiavgift;
+import no.fint.model.okonomi.kodeverk.Vare;
 
 public class LinkMapper {
 
