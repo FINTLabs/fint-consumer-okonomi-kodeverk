@@ -23,6 +23,7 @@ public class LinkMapper {
             .put("no.fint.model.administrasjon.kodeverk.Lopenummer", "/administrasjon/kodeverk/lopenummer")
             .put("no.fint.model.administrasjon.kodeverk.Objekt", "/administrasjon/kodeverk/objekt")
             .put("no.fint.model.administrasjon.kodeverk.Prosjekt", "/administrasjon/kodeverk/prosjekt")
+            .put("no.fint.model.administrasjon.kodeverk.Prosjektart", "/administrasjon/kodeverk/prosjektart")
             .put("no.fint.model.administrasjon.kodeverk.Ramme", "/administrasjon/kodeverk/ramme")
             .put("no.fint.model.okonomi.faktura.Fakturautsteder", "/okonomi/faktura/fakturautsteder")
             /* .put(TODO,TODO) */
