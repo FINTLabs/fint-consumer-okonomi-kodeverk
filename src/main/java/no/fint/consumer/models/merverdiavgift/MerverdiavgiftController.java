@@ -182,7 +182,7 @@ public class MerverdiavgiftController {
 
             fintAuditService.audit(response, Status.SENT_TO_CLIENT);
 
-            return linker.toResource(merverdiavgift);
+            return linker.mapAndResetLinks(merverdiavgift);
         }    
     }
 
