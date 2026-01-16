@@ -1,6 +1,7 @@
 package no.novari.fint.consumer.models.vare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -18,6 +19,7 @@ import no.novari.fint.consumer.exceptions.*;
 import no.novari.fint.consumer.status.StatusCache;
 import no.novari.fint.consumer.utils.EventResponses;
 import no.novari.fint.consumer.utils.RestEndpoints;
+import no.fint.antlr.FintFilterService;
 
 import no.fint.event.model.*;
 
@@ -29,13 +31,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.UnknownHostException;
 
-
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +53,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping(name = "Vare", value = RestEndpoints.VARE, produces = {FintRelationsMediaType.APPLICATION_HAL_JSON_VALUE, MediaType.APPLICATION_JSON_UTF8_VALUE})
 public class VareController {
+
+    private static final String ODATA_FILTER_QUERY_OPTION = "$filter=";
 
     @Autowired(required = false)
     private VareCacheService cacheService;
@@ -76,6 +79,9 @@ public class VareController {
 
     @Autowired
     private SynchronousEvents synchronousEvents;
+
+    @Autowired
+    private FintFilterService fintFilterService;
 
     @GetMapping("/last-updated")
     public Map<String, String> getLastUpdated(@RequestHeader(name = HeaderConstants.ORG_ID, required = false) String orgId) {
@@ -107,8 +113,12 @@ public class VareController {
             @RequestParam(defaultValue = "0") long sinceTimeStamp,
             @RequestParam(defaultValue = "0") int size,
             @RequestParam(defaultValue = "0") int offset,
-            HttpServletRequest request) {
+            @RequestParam(required = false) String $filter,
+            HttpServletRequest request) throws InterruptedException {
         if (cacheService == null) {
+            if (StringUtils.isNotBlank($filter)) {
+                return getVareByOdataFilter(client, orgId, $filter);
+            }
             throw new CacheDisabledException("Vare cache is disabled.");
         }
         if (props.isOverrideOrgId() || orgId == null) {
@@ -141,6 +151,49 @@ public class VareController {
         fintAuditService.audit(event, Status.CACHE_RESPONSE, Status.SENT_TO_CLIENT);
 
         return linker.toResources(resources, offset, size, cacheService.getCacheSize(orgId));
+    }
+    
+    @PostMapping("/$query")
+    public VareResources getVareByQuery(
+            @RequestHeader(name = HeaderConstants.ORG_ID, required = false)   String orgId,
+            @RequestHeader(name = HeaderConstants.CLIENT, required = false) String client,
+            @RequestParam(defaultValue = "0") long sinceTimeStamp,
+            @RequestParam(defaultValue = "0") int  size,
+            @RequestParam(defaultValue = "0") int  offset,
+            @RequestBody(required = false) String query,
+            HttpServletRequest request
+    ) throws InterruptedException {
+        return getVare(orgId, client, sinceTimeStamp, size, offset, query, request);
+    }
+
+    private VareResources getVareByOdataFilter(
+        String client, String orgId, String $filter
+    ) throws InterruptedException {
+        if (!fintFilterService.validate($filter))
+            throw new IllegalArgumentException("OData Filter is not valid");
+    
+        if (props.isOverrideOrgId() || orgId == null) orgId = props.getDefaultOrgId();
+        if (client == null) client = props.getDefaultClient();
+    
+        Event event = new Event(
+                orgId, Constants.COMPONENT,
+                KodeverkActions.GET_VARE, client);
+        event.setOperation(Operation.READ);
+        event.setQuery(ODATA_FILTER_QUERY_OPTION.concat($filter));
+    
+        BlockingQueue<Event> queue = synchronousEvents.register(event);
+        consumerEventUtil.send(event);
+    
+        Event response = EventResponses.handle(queue.poll(5, TimeUnit.MINUTES));
+        if (response.getData() == null || response.getData().isEmpty())
+            return new VareResources();
+    
+        ArrayList<VareResource> list = objectMapper.convertValue(
+                response.getData(),
+                new TypeReference<ArrayList<VareResource>>() {});
+        fintAuditService.audit(response, Status.SENT_TO_CLIENT);
+        list.forEach(r -> linker.mapAndResetLinks(r));
+        return linker.toResources(list);
     }
 
 
