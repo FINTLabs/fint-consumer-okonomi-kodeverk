@@ -1,7 +1,7 @@
 package no.fint.consumer.models.merverdiavgift;
 
-import no.fint.model.resource.okonomi.kodeverk.MerverdiavgiftResource;
-import no.fint.model.resource.okonomi.kodeverk.MerverdiavgiftResources;
+import no.novari.fint.model.resource.okonomi.kodeverk.MerverdiavgiftResource;
+import no.novari.fint.model.resource.okonomi.kodeverk.MerverdiavgiftResources;
 import no.fint.relations.FintLinker;
 import org.springframework.stereotype.Component;
 

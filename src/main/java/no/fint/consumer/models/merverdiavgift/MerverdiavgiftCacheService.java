@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import no.fint.model.okonomi.kodeverk.Merverdiavgift;
-import no.fint.model.resource.okonomi.kodeverk.MerverdiavgiftResource;
-import no.fint.model.okonomi.kodeverk.KodeverkActions;
-import no.fint.model.felles.kompleksedatatyper.Identifikator;
+import no.novari.fint.model.okonomi.kodeverk.Merverdiavgift;
+import no.novari.fint.model.resource.okonomi.kodeverk.MerverdiavgiftResource;
+import no.novari.fint.model.okonomi.kodeverk.KodeverkActions;
+import no.novari.fint.model.felles.kompleksedatatyper.Identifikator;
 
 @Slf4j
 @Service

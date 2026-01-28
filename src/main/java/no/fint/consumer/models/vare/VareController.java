@@ -43,9 +43,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import no.fint.model.resource.okonomi.kodeverk.VareResource;
-import no.fint.model.resource.okonomi.kodeverk.VareResources;
-import no.fint.model.okonomi.kodeverk.KodeverkActions;
+import no.novari.fint.model.resource.okonomi.kodeverk.VareResource;
+import no.novari.fint.model.resource.okonomi.kodeverk.VareResources;
+import no.novari.fint.model.okonomi.kodeverk.KodeverkActions;
 
 @Slf4j
 @Api(tags = {"Vare"})

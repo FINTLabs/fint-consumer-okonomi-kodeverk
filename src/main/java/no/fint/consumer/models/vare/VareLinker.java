@@ -1,7 +1,7 @@
 package no.fint.consumer.models.vare;
 
-import no.fint.model.resource.okonomi.kodeverk.VareResource;
-import no.fint.model.resource.okonomi.kodeverk.VareResources;
+import no.novari.fint.model.resource.okonomi.kodeverk.VareResource;
+import no.novari.fint.model.resource.okonomi.kodeverk.VareResources;
 import no.fint.relations.FintLinker;
 import org.springframework.stereotype.Component;
 
